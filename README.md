@@ -40,7 +40,7 @@
 
 1. **Clone repository:**
    ```bash
-   git clone https://github.com/your-username/e-net.git
+   git clone https://github.com/sp1deydev/e-net.git
    cd e-net
    ```
 
@@ -86,12 +86,6 @@ Hệ thống hỗ trợ chuyển đổi giữa **tiếng Việt (vi)** và **ti�
 ## 🤝 Đóng góp
 
 Mọi đóng góp nhằm cải thiện ứng dụng đều được chào đón! Hãy tạo Pull Request hoặc gửi Issue nếu bạn phát hiện lỗi hoặc muốn đề xuất tính năng mới.
-
----
-
-## 📄 Giấy phép
-
-Dự án này được cấp phép theo giấy phép MIT.
 
 ---
 
