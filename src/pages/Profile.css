@@ -1,0 +1,241 @@
+:root {
+    --profile-accent: #6366f1;
+    --profile-bg: #0a0c10;
+    --profile-card: rgba(255, 255, 255, 0.02);
+    --profile-border: rgba(255, 255, 255, 0.06);
+    --profile-text: #f8fafc;
+    --profile-text-muted: #94a3b8;
+    --profile-input-bg: #111827;
+}
+
+/* Light Mode Support */
+[data-theme='light'] {
+    --profile-bg: #ffffff;
+    --profile-card: #f8fafc;
+    --profile-border: #e2e8f0;
+    --profile-text: #0f172a;
+    --profile-text-muted: #64748b;
+    --profile-input-bg: #f1f5f9;
+}
+
+.profile-modal-premium.wow-style .ant-modal-content {
+    padding: 0;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--profile-bg);
+    border: 1px solid var(--profile-border);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease;
+}
+
+/* Header & Cover */
+.profile-cover {
+    height: 120px;
+    background: var(--profile-input-bg);
+    position: relative;
+    border-bottom: 1px solid var(--profile-border);
+}
+
+.profile-cover-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent, var(--profile-bg));
+}
+
+/* Avatar Section */
+.profile-avatar-container {
+    position: relative;
+    margin-top: -60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    z-index: 10;
+}
+
+.avatar-wrapper {
+    position: relative;
+    border-radius: 50%;
+    padding: 2px;
+    background: var(--profile-border);
+}
+
+.avatar-main {
+    border: 4px solid var(--profile-bg);
+    background: var(--profile-input-bg);
+}
+
+.avatar-upload-overlay {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 32px;
+    height: 32px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f172a;
+    cursor: pointer;
+    border: 2px solid var(--profile-bg);
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-upload-overlay:hover {
+    transform: scale(1.1);
+    background: var(--profile-accent);
+    color: white;
+}
+
+/* User Identity */
+.user-identity {
+    text-align: center;
+}
+
+.user-identity .username-tag {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--profile-text);
+    letter-spacing: -0.3px;
+}
+
+/* Body Content */
+.profile-body {
+    padding: 20px 40px 40px;
+}
+
+.profile-card {
+    margin-bottom: 24px;
+}
+
+.card-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--profile-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-title .anticon {
+    font-size: 14px;
+    color: var(--profile-accent);
+}
+
+.bio-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--profile-text);
+    background: var(--profile-card);
+    padding: 16px 20px;
+    border-radius: 16px;
+    border: 1px solid var(--profile-border);
+    opacity: 0.9;
+}
+
+/* Info List */
+.info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--profile-card);
+    border: 1px solid var(--profile-border);
+    border-radius: 14px;
+}
+
+.info-box .label {
+    font-size: 12px;
+    color: var(--profile-text-muted);
+    font-weight: 500;
+}
+
+.info-box .value {
+    font-size: 13px;
+    color: var(--profile-text);
+    font-weight: 600;
+}
+
+/* Action Buttons - Pure Minimalism */
+.btn-wow {
+    height: 38px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    padding: 0 16px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none !important;
+}
+
+.btn-wow.primary {
+    background: rgba(99, 102, 241, 0.12) !important;
+    color: var(--profile-accent) !important;
+}
+
+.btn-wow.primary:hover {
+    background: var(--profile-accent) !important;
+    color: white !important;
+}
+
+.btn-wow.ghost {
+    background: transparent !important;
+    color: var(--profile-text-muted) !important;
+}
+
+.btn-wow.ghost:hover {
+    background: var(--profile-card) !important;
+    color: var(--profile-text) !important;
+}
+
+/* Edit Mode */
+.profile-edit-header {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.premium-input label {
+    font-size: 12px !important;
+    color: var(--profile-text-muted) !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+}
+
+.premium-input .ant-input,
+.premium-input .ant-input-textarea {
+    background: var(--profile-input-bg) !important;
+    border: 1px solid var(--profile-border) !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    color: var(--profile-text) !important;
+    transition: all 0.2s ease !important;
+}
+
+.premium-input .ant-input:focus,
+.premium-input .ant-input-textarea:focus {
+    border-color: var(--profile-accent) !important;
+    background: var(--profile-bg) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+.profile-edit-footer {
+    margin-top: 32px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}

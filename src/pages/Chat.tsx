@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useI18n } from '../i18n'
 import {
   Button,
@@ -37,6 +38,18 @@ import {
   FileOutlined,
   PhoneOutlined
 } from '@ant-design/icons'
+import {
+  useAppDispatch,
+  useAppSelector,
+  addMessage,
+  setSelectedConv,
+  clearConversation,
+  markAsRead,
+  markAsUnread,
+  deleteConversation,
+  createConversation
+} from '../store'
+import ProfileModal from '../components/ProfileModal'
 import './Chat.css'
 
 const { Text } = Typography
@@ -50,8 +63,13 @@ type Message = {
 }
 
 export default function Chat() {
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const { currentUser } = useAppSelector(state => state.user)
+  const { conversationsState, conversationsMeta, selectedConvId: selectedConv } = useAppSelector(state => state.chat)
   const { t, setLang, lang } = useI18n()
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [showProfile, setShowProfile] = useState(false)
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' || 'dark'
@@ -78,6 +96,7 @@ export default function Chat() {
 
     // Action handlers
     switch (key) {
+      case 'profile': setShowProfile(true); break
       case 'openDetails': setShowDetails(true); break
       case 'findFriends': setShowFind(true); break
       case 'about': setShowAbout(true); break
@@ -130,6 +149,14 @@ export default function Chat() {
       type: 'group',
       label: <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)' }}>{t('settingsGroup')}</span>,
       children: [
+        {
+          key: 'profile',
+          label: (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <UserOutlined /> {t('profile') || 'Trang cá nhân'}
+            </div>
+          )
+        },
         {
           key: 'settings',
           label: (
@@ -184,16 +211,11 @@ export default function Chat() {
     }
   ]
 
-  const [conversationsState, setConversationsState] = useState<Record<string, Message[]>>({
-    '1': [{ id: '1', text: 'Xin chào! Chào mừng bạn đến với E-Net Chat.', sender: 'Bot', timestamp: new Date(), isMine: false }],
-    '2': [{ id: '1', text: 'Welcome to group chat! 🎉', sender: 'Alice', timestamp: new Date(), isMine: false }]
-  })
-  const [conversationsMeta, setConversationsMeta] = useState<Record<string, { name: string; unread: number }>>({
-    '1': { name: 'Bot Support', unread: 2 },
-    '2': { name: 'Group Chat', unread: 0 }
-  })
-  const [selectedConv, setSelectedConv] = useState<string>('1')
-  const messages = conversationsState[selectedConv] || []
+  const messages = (conversationsState[selectedConv] || []).map(m => ({
+    ...m,
+    timestamp: new Date(m.timestamp)
+  }))
+
   const [newMessage, setNewMessage] = useState('')
   const [search, setSearch] = useState('')
   const [filterChip, setFilterChip] = useState<'all' | 'unread' | 'groups'>('all')
@@ -216,26 +238,26 @@ export default function Chat() {
 
   const sendMessage = () => {
     if (!newMessage.trim()) return
-    const msg: Message = {
+    const msg = {
       id: Date.now().toString(),
       text: newMessage.trim(),
       sender: 'You',
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       isMine: true
     }
-    setConversationsState(prev => ({ ...prev, [selectedConv]: [...(prev[selectedConv] || []), msg] }))
+    dispatch(addMessage({ convId: selectedConv, message: msg }))
     setNewMessage('')
     setTyping(true)
     setTimeout(() => {
       setTyping(false)
-      const botMsg: Message = {
+      const botMsg = {
         id: (Date.now() + 1).toString(),
         text: t('botAutoReply'),
         sender: 'Bot',
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         isMine: false
       }
-      setConversationsState(prev => ({ ...prev, [selectedConv]: [...(prev[selectedConv] || []), botMsg] }))
+      dispatch(addMessage({ convId: selectedConv, message: botMsg }))
     }, 900)
   }
 
@@ -247,29 +269,26 @@ export default function Chat() {
   }
 
   const openConversation = (convId: string) => {
-    setSelectedConv(convId)
+    dispatch(setSelectedConv(convId))
     setShowDetails(false)
-    setConversationsMeta(prev => ({ ...prev, [convId]: { ...prev[convId], unread: 0 } }))
   }
 
   const handleConversationAction = (convId: string, action: string) => {
     if (action === 'open') { openConversation(convId); return }
     if (action === 'clear') {
-      setConversationsState(prev => ({ ...prev, [convId]: [] }))
+      dispatch(clearConversation(convId))
       return
     }
     if (action === 'markRead') {
-      setConversationsMeta(prev => ({ ...prev, [convId]: { ...prev[convId], unread: 0 } }))
+      dispatch(markAsRead(convId))
       return
     }
     if (action === 'markUnread') {
-      setConversationsMeta(prev => ({ ...prev, [convId]: { ...prev[convId], unread: (prev[convId]?.unread || 0) + 1 } }))
+      dispatch(markAsUnread(convId))
       return
     }
     if (action === 'delete') {
-      setConversationsState(prev => { const c = { ...prev }; delete c[convId]; return c })
-      setConversationsMeta(prev => { const c = { ...prev }; delete c[convId]; return c })
-      if (selectedConv === convId) setSelectedConv(Object.keys(conversationsMeta)[0] || '')
+      dispatch(deleteConversation(convId))
     }
   }
 
@@ -321,7 +340,18 @@ export default function Chat() {
       <div className="chat-sidebar">
         {/* Sidebar Header */}
         <div className="chat-sidebar-header">
-          <span className="chat-sidebar-title">💬 E-Net</span>
+          <div
+            className="chat-sidebar-user"
+            onClick={() => setShowProfile(true)}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}
+          >
+            <Avatar
+              size={32}
+              src={currentUser?.avatar || 'https://cdn-icons-png.flaticon.com/512/1090/1090806.png'}
+              icon={<UserOutlined />}
+            />
+            <span className="chat-sidebar-title" style={{ fontSize: 16 }}>E-Net</span>
+          </div>
           <div className="chat-sidebar-header-actions">
             <Dropdown
               menu={{ items: moreMenuItems as any, onClick: handleMoreMenuClick }}
@@ -452,7 +482,11 @@ export default function Chat() {
                 onClick={() => openConversation(item.id)}
               >
                 <div className="chat-conv-avatar">
-                  <Avatar size={44} icon={<UserOutlined />} />
+                  <Avatar
+                    size={44}
+                    src={conversationsMeta[item.id]?.avatar || 'https://cdn-icons-png.flaticon.com/512/1090/1090806.png'}
+                    icon={<UserOutlined />}
+                  />
                   <div className="chat-conv-online-dot" />
                 </div>
 
@@ -505,180 +539,215 @@ export default function Chat() {
 
       {/* ====== MAIN CHAT AREA ====== */}
       <div className="chat-main">
-        {/* Header */}
-        <div className="chat-main-header">
-          <Avatar size={40} icon={<UserOutlined />} />
-          <div>
-            <div className="chat-contact-name">{currentConvName}</div>
-            <div className="chat-contact-status">{t('online')}</div>
-          </div>
-          <div className="chat-main-header-actions">
-            <Tooltip title="Chi tiết">
-              <div className="icon-btn" onClick={() => setShowDetails(true)}>
-                <InfoCircleOutlined />
-              </div>
-            </Tooltip>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div className="chat-messages-container">
-          {messages.map(msg => (
-            <div
-              key={msg.id}
-              className={`chat-message-row ${msg.isMine ? 'mine' : 'other'}`}
-            >
-              <div className="chat-message-group">
-                <div className="chat-message-wrapper">
-                  {!msg.isMine && (
-                    <div className="chat-message-avatar">
-                      <Avatar size={32} icon={<UserOutlined />} />
-                    </div>
-                  )}
-                  <div className="chat-message-content">
-                    <div className={`chat-bubble ${msg.isMine ? 'mine' : 'other'}`}>
-                      {msg.text}
-                    </div>
-                    <div className="chat-message-time">
-                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                  </div>
-                  {msg.isMine && (
-                    <div className="chat-message-avatar">
-                      <Avatar size={32} icon={<UserOutlined />} />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {typing && (
-            <div className="chat-typing-row">
-              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-                <Avatar size={32} icon={<UserOutlined />} />
-                <div className="chat-typing-bubble">
-                  <div className="chat-typing-dots">
-                    <div className="chat-typing-dot" />
-                    <div className="chat-typing-dot" />
-                    <div className="chat-typing-dot" />
-                  </div>
-                  <span className="chat-typing-text">{t('typing')}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input Area */}
-        < div className="chat-input-area" >
-          {/* Emoji Picker */}
-          {
-            emojiOpen && (
-              <div className="chat-emoji-picker">
-                <div className="chat-emoji-picker-header">
-                  <span className="chat-emoji-picker-title">{t('expressions')}</span>
-                  <button className="chat-emoji-close-btn" onClick={() => setEmojiOpen(false)}>✕</button>
-                </div>
-                <div className="chat-emoji-grid">
-                  {['😀', '😄', '😅', '😂', '😊', '😍', '🥰', '😎', '🤔', '😏',
-                    '👍', '👎', '❤️', '🔥', '🎉', '✨', '💯', '🙏', '👏', '😭'].map(em => (
-                      <button
-                        key={em}
-                        className="chat-emoji-btn"
-                        onClick={() => { setNewMessage(prev => prev + em); setEmojiOpen(false) }}
-                      >
-                        {em}
-                      </button>
-                    ))}
-                </div>
-                <div className="chat-emoji-picker-footer">
-                  <span className="chat-emoji-hint">{t('clickToAddEmoji')}</span>
-                </div>
-              </div>
-            )
-          }
-
-          {/* Input Card */}
-          <div className="chat-input-card">
-            {/* Text row */}
-            <div className="chat-input-text-row">
-              <textarea
-                className="chat-input-textarea"
-                placeholder={t('messagePlaceholder')}
-                value={newMessage}
-                rows={1}
-                onChange={e => {
-                  setNewMessage(e.target.value)
-                  // auto-resize
-                  e.target.style.height = 'auto'
-                  e.target.style.height = Math.min(e.target.scrollHeight, 140) + 'px'
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    sendMessage()
-                  }
-                }}
+        {selectedConv ? (
+          <>
+            {/* Header */}
+            <div className="chat-main-header">
+              <Avatar
+                size={40}
+                src={conversationsMeta[selectedConv]?.avatar || 'https://cdn-icons-png.flaticon.com/512/1090/1090806.png'}
+                icon={<UserOutlined />}
               />
+              <div>
+                <div className="chat-contact-name">{currentConvName}</div>
+                <div className="chat-contact-status">{t('online')}</div>
+              </div>
+              <div className="chat-main-header-actions">
+                <Tooltip title="Chi tiết">
+                  <div className="icon-btn" onClick={() => setShowDetails(true)}>
+                    <InfoCircleOutlined />
+                  </div>
+                </Tooltip>
+              </div>
             </div>
 
-            {/* Action bar */}
-            <div className="chat-input-action-bar">
-              {/* Left icons */}
-              <div className="chat-input-left-actions">
-                <Tooltip title={t('attachFile')} placement="top">
-                  <Upload showUploadList={false} beforeUpload={() => false}>
-                    <div className="chat-icon-btn">
-                      <PaperClipOutlined />
+            {/* Messages */}
+            <div className="chat-messages-container">
+              {messages.map(msg => (
+                <div
+                  key={msg.id}
+                  className={`chat-message-row ${msg.isMine ? 'mine' : 'other'}`}
+                >
+                  <div className="chat-message-group">
+                    <div className="chat-message-wrapper">
+                      {!msg.isMine && (
+                        <div className="chat-message-avatar">
+                          <Avatar
+                            size={32}
+                            src={conversationsMeta[selectedConv]?.avatar || 'https://cdn-icons-png.flaticon.com/512/1090/1090806.png'}
+                            icon={<UserOutlined />}
+                          />
+                        </div>
+                      )}
+                      <div className="chat-message-content">
+                        <div className={`chat-bubble ${msg.isMine ? 'mine' : 'other'}`}>
+                          {msg.text}
+                        </div>
+                        <div className="chat-message-time">
+                          {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                      {msg.isMine && (
+                        <div className="chat-message-avatar">
+                          <Avatar
+                            size={32}
+                            src={currentUser?.avatar || 'https://cdn-icons-png.flaticon.com/512/1090/1090806.png'}
+                            icon={<UserOutlined />}
+                          />
+                        </div>
+                      )}
                     </div>
-                  </Upload>
-                </Tooltip>
-
-                <Tooltip title={t('emoji')} placement="top">
-                  <div
-                    className={`chat-icon-btn ${emojiOpen ? 'is-active' : ''}`}
-                    onClick={() => setEmojiOpen(prev => !prev)}
-                  >
-                    <SmileOutlined />
                   </div>
-                </Tooltip>
+                </div>
+              ))}
 
-                <div className="chat-input-sep" />
+              {typing && (
+                <div className="chat-typing-row">
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                    <Avatar
+                      size={32}
+                      src={conversationsMeta[selectedConv]?.avatar || 'https://cdn-icons-png.flaticon.com/512/1090/1090806.png'}
+                      icon={<UserOutlined />}
+                    />
+                    <div className="chat-typing-bubble">
+                      <div className="chat-typing-dots">
+                        <div className="chat-typing-dot" />
+                        <div className="chat-typing-dot" />
+                        <div className="chat-typing-dot" />
+                      </div>
+                      <span className="chat-typing-text">{t('typing')}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
 
-                <div className="chat-input-hint">
-                  {t('inputHint')}
+            {/* Input Area */}
+            <div className="chat-input-area">
+              {/* Emoji Picker */}
+              {emojiOpen && (
+                <div className="chat-emoji-picker">
+                  <div className="chat-emoji-picker-header">
+                    <span className="chat-emoji-picker-title">{t('expressions')}</span>
+                    <button className="chat-emoji-close-btn" onClick={() => setEmojiOpen(false)}>✕</button>
+                  </div>
+                  <div className="chat-emoji-grid">
+                    {['😀', '😄', '😅', '😂', '😊', '😍', '🥰', '😎', '🤔', '😏',
+                      '👍', '👎', '❤️', '🔥', '🎉', '✨', '💯', '🙏', '👏', '😭'].map(em => (
+                        <button
+                          key={em}
+                          className="chat-emoji-btn"
+                          onClick={() => { setNewMessage(prev => prev + em); setEmojiOpen(false) }}
+                        >
+                          {em}
+                        </button>
+                      ))}
+                  </div>
+                  <div className="chat-emoji-picker-footer">
+                    <span className="chat-emoji-hint">{t('clickToAddEmoji')}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Input Card */}
+              <div className="chat-input-card">
+                {/* Text row */}
+                <div className="chat-input-text-row">
+                  <textarea
+                    className="chat-input-textarea"
+                    placeholder={t('messagePlaceholder')}
+                    value={newMessage}
+                    rows={1}
+                    onChange={e => {
+                      setNewMessage(e.target.value)
+                      // auto-resize
+                      e.target.style.height = 'auto'
+                      e.target.style.height = Math.min(e.target.scrollHeight, 140) + 'px'
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        sendMessage()
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* Action bar */}
+                <div className="chat-input-action-bar">
+                  {/* Left icons */}
+                  <div className="chat-input-left-actions">
+                    <Tooltip title={t('attachFile')} placement="top">
+                      <Upload showUploadList={false} beforeUpload={() => false}>
+                        <div className="chat-icon-btn">
+                          <PaperClipOutlined />
+                        </div>
+                      </Upload>
+                    </Tooltip>
+
+                    <Tooltip title={t('emoji')} placement="top">
+                      <div
+                        className={`chat-icon-btn ${emojiOpen ? 'is-active' : ''}`}
+                        onClick={() => setEmojiOpen(prev => !prev)}
+                      >
+                        <SmileOutlined />
+                      </div>
+                    </Tooltip>
+
+                    <div className="chat-input-sep" />
+
+                    <div className="chat-input-hint">
+                      {t('inputHint')}
+                    </div>
+                  </div>
+
+                  {/* Right: counter + send */}
+                  <div className="chat-input-right-actions">
+                    {newMessage.length > 0 && (
+                      <span className={`chat-char-counter ${newMessage.length > 900 ? 'danger'
+                        : newMessage.length > 700 ? 'warn'
+                          : ''
+                        }`}>
+                        {newMessage.length}/1000
+                      </span>
+                    )}
+
+                    {/* Send button — visible when has text, icon-only grey when empty */}
+                    {newMessage.trim() ? (
+                      <button className="chat-send-btn" onClick={sendMessage}>
+                        <SendOutlined />
+                        {t('send')}
+                      </button>
+                    ) : (
+                      <div className="chat-send-icon-btn">
+                        <SendOutlined />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              {/* Right: counter + send */}
-              <div className="chat-input-right-actions">
-                {newMessage.length > 0 && (
-                  <span className={`chat-char-counter ${newMessage.length > 900 ? 'danger'
-                    : newMessage.length > 700 ? 'warn'
-                      : ''
-                    }`}>
-                    {newMessage.length}/1000
-                  </span>
-                )}
-
-                {/* Send button — visible when has text, icon-only grey when empty */}
-                {newMessage.trim() ? (
-                  <button className="chat-send-btn" onClick={sendMessage}>
-                    <SendOutlined />
-                    {t('send')}
-                  </button>
-                ) : (
-                  <div className="chat-send-icon-btn">
-                    <SendOutlined />
-                  </div>
-                )}
+            </div>
+          </>
+        ) : (
+          /* Placeholder / Welcome Screen */
+          <div className="chat-welcome-placeholder">
+            <div className="chat-welcome-content">
+              <div className="chat-welcome-icon-wrap">
+                💬
+              </div>
+              <div className="chat-welcome-text">
+                <h2>{t('welcomeTitle')}</h2>
+                <p>{t('welcomeSubtitle')}</p>
+              </div>
+              <div className="chat-welcome-guide">
+                <TeamOutlined style={{ fontSize: 20 }} />
+                <span>{t('selectConversationToStart')}</span>
               </div>
             </div>
           </div>
-        </div >
-      </div >
+        )}
+      </div>
 
       {/* ====== DETAILS PANEL ====== */}
       < div className={`chat-details-panel ${showDetails ? 'open' : 'closed'}`}>
@@ -698,7 +767,11 @@ export default function Chat() {
           {/* Avatar centered & overlapping */}
           <div className="chat-details-avatar-wrap">
             <div className="chat-details-avatar-ring">
-              <Avatar size={66} icon={<UserOutlined />} />
+              <Avatar
+                size={66}
+                src={conversationsMeta[selectedConv]?.avatar || 'https://cdn-icons-png.flaticon.com/512/1090/1090806.png'}
+                icon={<UserOutlined />}
+              />
             </div>
             <div className="chat-details-online" />
           </div>
@@ -774,7 +847,7 @@ export default function Chat() {
                 <button
                   className="dp-action-btn danger"
                   onClick={() => {
-                    setConversationsState(prev => ({ ...prev, [selectedConv]: [] }))
+                    dispatch(clearConversation(selectedConv))
                     setShowDetails(false)
                   }}
                 >
@@ -911,9 +984,8 @@ export default function Chat() {
             <Button key="create" type="primary" onClick={() => {
               if (!newConvName.trim()) { message.warning('Vui lòng nhập tên'); return }
               const id = Date.now().toString()
-              setConversationsMeta(prev => ({ ...prev, [id]: { name: newConvName.trim(), unread: 0 } }))
-              setConversationsState(prev => ({ ...prev, [id]: [] }))
-              setSelectedConv(id)
+              dispatch(createConversation({ id, name: newConvName.trim() }))
+              dispatch(setSelectedConv(id))
               setShowNewConv(false)
               setNewConvName('')
               message.success(t('create'))
@@ -966,11 +1038,12 @@ export default function Chat() {
                   className="user-add-btn"
                   onClick={() => {
                     const id = Date.now().toString()
-                    setConversationsMeta(prev => ({ ...prev, [id]: { name, unread: 1 } }))
-                    setConversationsState(prev => ({
-                      ...prev,
-                      [id]: [{ id: Date.now().toString(), text: `Hi ${name}!`, sender: name, timestamp: new Date(), isMine: false }]
+                    dispatch(createConversation({ id, name }))
+                    dispatch(addMessage({
+                      convId: id,
+                      message: { id: Date.now().toString(), text: `Hi ${name}!`, sender: name, timestamp: new Date().toISOString(), isMine: false }
                     }))
+                    dispatch(markAsUnread(id))
                     setShowFind(false)
                     message.success(`${t('friendRequested')}: ${name}`)
                   }}
@@ -1023,6 +1096,11 @@ export default function Chat() {
           </div>
         </div>
       </Modal >
+
+      <ProfileModal
+        open={showProfile}
+        onClose={() => setShowProfile(false)}
+      />
 
     </div >
   )

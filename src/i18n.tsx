@@ -85,6 +85,67 @@ type TranslationKeys =
   | 'admin'
   | 'member'
   | 'removeFromGroup'
+  | 'profile'
+  | 'fullName'
+  | 'bio'
+  | 'profileAvatar'
+  | 'saveChanges'
+  | 'updateSuccess'
+  | 'updateError'
+  | 'editProfile'
+  | 'bioPlaceholder'
+  | 'avatarPlaceholder'
+  | 'memberSince'
+  | 'filterAll'
+  | 'filterUnread'
+  | 'filterGroups'
+  | 'conversationsCount'
+  | 'noConversationFound'
+  | 'matchingWith'
+  | 'noConversationsYet'
+  | 'findFriendsToStart'
+  | 'enterConversationName'
+  | 'noConversationSelected'
+  | 'actionMessage'
+  | 'actionCall'
+  | 'actionMute'
+  | 'actionSearch'
+  | 'basicInfo'
+  | 'infoType'
+  | 'infoTypePrivate'
+  | 'infoCreatedDate'
+  | 'infoStatus'
+  | 'infoStatusActive'
+  | 'infoTotalMessages'
+  | 'actionsSection'
+  | 'botAutoReply'
+  | 'messages'
+  | 'sloganTitle'
+  | 'sloganSubtitle'
+  | 'sloganDesc'
+  | 'featureSecure'
+  | 'featureRealtime'
+  | 'featureMultilang'
+  | 'loginWith'
+  | 'homeWelcome'
+  | 'pleaseEnterEmail'
+  | 'pleaseEnterPassword'
+  | 'registerTitle'
+  | 'registerSubtitle'
+  | 'registerDesc'
+  | 'featureFree'
+  | 'featureDevices'
+  | 'featureFriendly'
+  | 'confirmPassword'
+  | 'pleaseConfirmPassword'
+  | 'alreadyHaveAccount'
+  | 'lightMode'
+  | 'theme'
+  | 'username'
+  | 'pleaseEnterUsername'
+  | 'welcomeTitle'
+  | 'welcomeSubtitle'
+  | 'selectConversationToStart'
 
 const resources = {
   en: {
@@ -169,6 +230,17 @@ const resources = {
       admin: 'Admin',
       member: 'Member',
       removeFromGroup: 'Remove from group',
+      profile: 'Profile',
+      fullName: 'Full Name',
+      bio: 'Bio',
+      profileAvatar: 'Avatar URL',
+      saveChanges: 'Save Changes',
+      updateSuccess: 'Profile updated successfully!',
+      updateError: 'Failed to update profile',
+      editProfile: 'Edit Profile',
+      bioPlaceholder: 'Tell us something about yourself...',
+      avatarPlaceholder: 'Paste image URL here...',
+      memberSince: 'Member since',
       filterAll: 'All',
       filterUnread: 'Unread',
       filterGroups: 'Groups',
@@ -213,7 +285,12 @@ const resources = {
       pleaseConfirmPassword: 'Please confirm your password!',
       alreadyHaveAccount: 'Already have an account?',
       lightMode: 'Light Mode',
-      theme: 'Theme'
+      theme: 'Theme',
+      username: 'Username',
+      pleaseEnterUsername: 'Please enter your username!',
+      welcomeTitle: 'Welcome to E-Net Chat',
+      welcomeSubtitle: 'The modern way to connect with your world.',
+      selectConversationToStart: 'Please select a conversation from the sidebar to start messaging.'
     }
   },
   vi: {
@@ -298,6 +375,17 @@ const resources = {
       admin: 'Quản trị viên',
       member: 'Thành viên',
       removeFromGroup: 'Xóa khỏi nhóm',
+      profile: 'Trang cá nhân',
+      fullName: 'Họ tên',
+      bio: 'Tiểu sử',
+      profileAvatar: 'Ảnh đại diện (URL)',
+      saveChanges: 'Lưu thay đổi',
+      updateSuccess: 'Cập nhật trang cá nhân thành công!',
+      updateError: 'Cập nhật thất bại, vui lòng thử lại',
+      editProfile: 'Chỉnh sửa trang cá nhân',
+      bioPlaceholder: 'Giới thiệu một chút về bạn...',
+      avatarPlaceholder: 'Dán đường dẫn ảnh vào đây...',
+      memberSince: 'Thành viên từ',
       filterAll: 'Tất cả',
       filterUnread: 'Chưa đọc',
       filterGroups: 'Nhóm',
@@ -325,7 +413,7 @@ const resources = {
       sloganTitle: 'Kết nối mọi người,',
       sloganSubtitle: 'mọi lúc mọi nơi',
       sloganDesc: 'Trải nghiệm giao tiếp thời gian thực, bảo mật, nhanh chóng và hiện đại.',
-      featureSecure: 'Bảo mật đầu cuối mã hóa',
+      featureSecure: 'Bạo mật đầu cuối mã hóa',
       featureRealtime: 'Tin nhắn thời gian thực',
       featureMultilang: 'Hỗ trợ đa ngôn ngữ',
       loginWith: 'hoặc đăng nhập với',
@@ -342,7 +430,12 @@ const resources = {
       pleaseConfirmPassword: 'Vui lòng xác nhận mật khẩu!',
       alreadyHaveAccount: 'Đã có tài khoản?',
       lightMode: 'Chế độ sáng',
-      theme: 'Giao diện'
+      theme: 'Giao diện',
+      username: 'Tên người dùng',
+      pleaseEnterUsername: 'Vui lòng nhập tên người dùng!',
+      welcomeTitle: 'Chào mừng bạn đến với E-Net Chat',
+      welcomeSubtitle: 'Kết nối thế giới theo cách hiện đại nhất.',
+      selectConversationToStart: 'Vui lòng chọn một cuộc trò chuyện từ danh sách để bắt đầu nhắn tin.'
     }
   }
 }

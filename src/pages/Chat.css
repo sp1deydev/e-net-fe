@@ -2077,3 +2077,80 @@ kbd {
         transform: rotate(360deg);
     }
 }
+
+/* --- WELCOME PLACEHOLDER --- */
+.chat-welcome-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    animation: fadeIn 0.8s ease-out;
+    background: radial-gradient(circle at center, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
+}
+
+.chat-welcome-content {
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.chat-welcome-icon-wrap {
+    width: 120px;
+    height: 120px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.chat-welcome-icon-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 38px;
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    z-index: -1;
+    opacity: 0.3;
+}
+
+.chat-welcome-text h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
+}
+
+.chat-welcome-text p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.chat-welcome-guide {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid var(--primary-glow);
+    border-radius: var(--radius-lg);
+    color: var(--primary-light);
+    font-size: 14px;
+    font-weight: 600;
+    animation: pulse-glow 3s infinite;
+    white-space: nowrap;
+}

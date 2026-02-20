@@ -104,6 +104,15 @@ export default function Register() {
 
           <Form layout="vertical" onFinish={onFinish} size="large">
             <Form.Item
+              name="username"
+              label={<span className="auth-form-label">{t('username')}</span>}
+              rules={[{ required: true, message: t('pleaseEnterUsername') }]}
+              className="auth-form-group"
+            >
+              <Input placeholder="johndoe" />
+            </Form.Item>
+
+            <Form.Item
               name="email"
               label={<span className="auth-form-label">{t('email')}</span>}
               rules={[{ required: true, message: t('pleaseEnterEmail') }]}
