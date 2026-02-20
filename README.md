@@ -89,10 +89,4 @@ Mọi đóng góp nhằm cải thiện ứng dụng đều được chào đón!
 
 ---
 
-## 📄 Giấy phép
-
-Dự án này được cấp phép theo giấy phép MIT.
-
----
-
 Cảm ơn bạn đã quan tâm đến **E-Net Chat**! 🚀
