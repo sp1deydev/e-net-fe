@@ -40,7 +40,7 @@
 
 1. **Clone repository:**
    ```bash
-   git clone https://github.com/your-username/e-net.git
+   git clone https://github.com/sp1deydev/e-net.git
    cd e-net
    ```
 
