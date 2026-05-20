@@ -5,27 +5,29 @@ import { GoogleOutlined, FacebookOutlined, GithubOutlined, GlobalOutlined, MoonO
 import { useNavigate } from 'react-router-dom'
 import { useI18n } from '../i18n'
 import { useState, useEffect } from 'react'
+import { useAppDispatch, login } from '../store'
 import './Auth.css'
-
-function loginWithGoogle() {
-  alert('Đăng nhập với Google')
-  window.location.href = '/chat'
-}
-
-function loginWithFacebook() {
-  alert('Đăng nhập với Facebook')
-  window.location.href = '/chat'
-}
-
-function loginWithGithub() {
-  alert('Đăng nhập với GitHub')
-  window.location.href = '/chat'
-}
 
 export default function Login() {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { t, setLang, lang } = useI18n()
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+
+  const loginWithGoogle = () => {
+    dispatch(login({ email: 'google.user@example.com' }))
+    navigate('/chat')
+  }
+
+  const loginWithFacebook = () => {
+    dispatch(login({ email: 'facebook.user@example.com' }))
+    navigate('/chat')
+  }
+
+  const loginWithGithub = () => {
+    dispatch(login({ email: 'github.user@example.com' }))
+    navigate('/chat')
+  }
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' || 'dark'
@@ -63,6 +65,7 @@ export default function Login() {
 
   const onFinish = (values: any) => {
     console.log('Login form', values)
+    dispatch(login({ email: values.email }))
     navigate('/chat')
   }
 

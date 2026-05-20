@@ -47,7 +47,8 @@ import {
   markAsRead,
   markAsUnread,
   deleteConversation,
-  createConversation
+  createConversation,
+  logout
 } from '../store'
 import ProfileModal from '../components/ProfileModal'
 import './Chat.css'
@@ -104,14 +105,7 @@ export default function Chat() {
       case 'darkMode': toggleTheme(); break
       case 'help': message.info(t('helpCenter')); break
       case 'logout':
-        Modal.confirm({
-          title: t('logout'),
-          content: t('confirmLogout'),
-          okText: t('logout'),
-          cancelText: t('cancel'),
-          okButtonProps: { danger: true },
-          onOk: () => window.location.href = '/login'
-        })
+        setShowLogoutConfirm(true)
         break
     }
   }
@@ -176,24 +170,33 @@ export default function Chat() {
             </div>
           )
         },
-        // Languages directly listed
         {
-          key: 'lang:vi',
-          className: lang === 'vi' ? 'menu-item-active' : '',
+          key: 'language_submenu',
           label: (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 16 }}>🇻🇳</span> Tiếng Việt {lang === 'vi' && '✓'}
+              <GlobalOutlined /> {t('language')}
             </div>
-          )
-        },
-        {
-          key: 'lang:en',
-          className: lang === 'en' ? 'menu-item-active' : '',
-          label: (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 16 }}>🇺🇸</span> Tiếng Anh {lang === 'en' && '✓'}
-            </div>
-          )
+          ),
+          children: [
+            {
+              key: 'lang:vi',
+              className: lang === 'vi' ? 'menu-item-active' : '',
+              label: (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 16 }}>🇻🇳</span> Tiếng Việt {lang === 'vi' && '✓'}
+                </div>
+              )
+            },
+            {
+              key: 'lang:en',
+              className: lang === 'en' ? 'menu-item-active' : '',
+              label: (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 16 }}>🇺🇸</span> Tiếng Anh {lang === 'en' && '✓'}
+                </div>
+              )
+            }
+          ]
         }
       ]
     },
@@ -228,6 +231,7 @@ export default function Chat() {
   const [showFind, setShowFind] = useState(false)
   const [friendQuery, setFriendQuery] = useState('')
   const [showAbout, setShowAbout] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const [showDetails, setShowDetails] = useState(false)
   const [activeTab, setActiveTab] = useState<'info' | 'members' | 'media' | 'notifications' | 'privacy'>('info')
@@ -1102,6 +1106,44 @@ export default function Chat() {
         onClose={() => setShowProfile(false)}
       />
 
-    </div >
+      <Modal
+        title={null}
+        footer={null}
+        open={showLogoutConfirm}
+        onCancel={() => setShowLogoutConfirm(false)}
+        width={380}
+        className="chat-modal-premium"
+        closeIcon={<div className="chat-modal-close-icon">✕</div>}
+        centered
+      >
+        <div className="logout-modal-content">
+          <div className="logout-modal-icon-wrap">
+            <LogoutOutlined />
+          </div>
+          <h3 className="logout-modal-title">{t('logout')}</h3>
+          <p className="logout-modal-text">{t('confirmLogout')}</p>
+        </div>
+
+        <div className="logout-modal-footer">
+          <button
+            className="logout-modal-btn cancel"
+            onClick={() => setShowLogoutConfirm(false)}
+          >
+            {t('cancel')}
+          </button>
+          <button
+            className="logout-modal-btn danger"
+            onClick={() => {
+              console.log('State-based logout confirmed')
+              dispatch(logout())
+              setShowLogoutConfirm(false)
+              navigate('/login')
+            }}
+          >
+            {t('logout')}
+          </button>
+        </div>
+      </Modal>
+    </div>
   )
 }

@@ -1,30 +1,58 @@
 import React from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Chat from './pages/Chat'
-import { useI18n } from './i18n'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { useAppSelector } from './store'
+import { routesConfig } from './routes/routesConfig'
 
-const Home: React.FC = () => {
-	const { t } = useI18n()
-	return (
-		<div style={{ padding: 24 }}>
-			<h1>{t('appName')}</h1>
-			<p>{t('homeWelcome')}</p>
-			<Link to="/login">{t('login')}</Link>
-			<br />
-			<Link to="/chat">{t('appName')}</Link>
-		</div>
-	)
+const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: ('user' | 'admin')[] }> = ({ children, allowedRoles }) => {
+	const { currentUser } = useAppSelector((state) => state.user)
+	if (!currentUser) {
+		return <Navigate to="/login" replace />
+	}
+	if (allowedRoles && (!currentUser.role || !allowedRoles.includes(currentUser.role))) {
+		return <Navigate to={currentUser.role === 'admin' ? "/admin" : "/chat"} replace />
+	}
+	return <>{children}</>
+}
+
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+	const { currentUser } = useAppSelector((state) => state.user)
+	if (currentUser) {
+		return <Navigate to={currentUser.role === 'admin' ? "/admin" : "/chat"} replace />
+	}
+	return <>{children}</>
 }
 
 export default function App() {
+	const { currentUser } = useAppSelector((state) => state.user)
+
 	return (
 		<Routes>
-			<Route path="/" element={<Home />} />
-			<Route path="/login" element={<Login />} />
-			<Route path="/register" element={<Register />} />
-			<Route path="/chat" element={<Chat />} />
+			{routesConfig.map((route) => {
+				if (route.dynamicRedirect) {
+					const targetPath = currentUser
+						? currentUser.role === 'admin'
+							? '/admin'
+							: '/chat'
+						: '/login'
+					return (
+						<Route
+							key={route.path}
+							path={route.path}
+							element={<Navigate to={targetPath} replace />}
+						/>
+					)
+				}
+
+				let element = route.element
+
+				if (route.isProtected) {
+					element = <ProtectedRoute allowedRoles={route.allowedRoles}>{element}</ProtectedRoute>
+				} else if (route.isPublicOnly) {
+					element = <PublicRoute>{element}</PublicRoute>
+				}
+
+				return <Route key={route.path} path={route.path} element={element} />
+			})}
 		</Routes>
 	)
 }
