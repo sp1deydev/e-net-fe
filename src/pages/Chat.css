@@ -2279,3 +2279,109 @@ kbd {
     box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3) !important;
     transform: translateY(-1px);
 }
+
+/* ============================================
+   RESPONSIVE DESIGN (Phones & Tablets)
+   ============================================ */
+
+/* Hide mobile back button by default on desktop */
+.chat-back-mobile-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 6px;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.chat-back-mobile-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-card-hover);
+    transform: translateX(-2px);
+}
+
+@media (max-width: 850px) {
+    /* Main layout pane switching */
+    .chat-root {
+        position: relative;
+    }
+
+    /* Show only sidebar when no conversation is active */
+    .chat-root:not(.has-selected-conv) .chat-sidebar {
+        width: 100% !important;
+        display: flex !important;
+        border-right: none;
+    }
+
+    .chat-root:not(.has-selected-conv) .chat-main {
+        display: none !important;
+    }
+
+    /* Show only main chat when a conversation is active */
+    .chat-root.has-selected-conv .chat-sidebar {
+        display: none !important;
+    }
+
+    .chat-root.has-selected-conv .chat-main {
+        width: 100% !important;
+        display: flex !important;
+        z-index: 10;
+    }
+
+    /* Render the mobile back button */
+    .chat-back-mobile-btn {
+        display: flex;
+    }
+
+    /* Adjust header & list padding for thumb reachability and cleaner screens */
+    .chat-sidebar-header {
+        padding: 14px 16px;
+    }
+
+    .chat-main-header {
+        padding: 10px 14px;
+        gap: 8px;
+    }
+
+    .chat-messages-container {
+        padding: 12px 14px;
+    }
+
+    /* Let details panel slide over the entire screen on mobile */
+    .chat-details-panel {
+        width: 100% !important;
+        z-index: 2000;
+        box-shadow: none;
+    }
+
+    /* Optimizing the quick buttons alignment */
+    .chat-details-quick-actions {
+        padding: 0 8px 12px;
+    }
+
+    .chat-quick-btn {
+        max-width: 60px;
+    }
+
+    /* Ensure emoji picker stays inside the screen bounds */
+    .chat-emoji-picker-container {
+        width: 92vw !important;
+        max-width: 340px !important;
+        right: 4vw !important;
+        bottom: 74px !important;
+    }
+
+    .chat-input-area {
+        padding: 10px 12px;
+    }
+
+    .chat-input-wrap {
+        padding: 6px 10px;
+    }
+}

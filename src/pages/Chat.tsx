@@ -36,7 +36,8 @@ import {
   MoonOutlined,
   QuestionCircleOutlined,
   FileOutlined,
-  PhoneOutlined
+  PhoneOutlined,
+  ArrowLeftOutlined
 } from '@ant-design/icons'
 import {
   useAppDispatch,
@@ -339,7 +340,7 @@ export default function Chat() {
   ]
 
   return (
-    <div className="chat-root">
+    <div className={`chat-root ${selectedConv ? 'has-selected-conv' : ''}`}>
       {/* ====== SIDEBAR ====== */}
       <div className="chat-sidebar">
         {/* Sidebar Header */}
@@ -547,6 +548,12 @@ export default function Chat() {
           <>
             {/* Header */}
             <div className="chat-main-header">
+              <button 
+                className="chat-back-mobile-btn" 
+                onClick={() => dispatch(setSelectedConv(''))}
+              >
+                <ArrowLeftOutlined />
+              </button>
               <Avatar
                 size={40}
                 src={conversationsMeta[selectedConv]?.avatar || 'https://cdn-icons-png.flaticon.com/512/1090/1090806.png'}
